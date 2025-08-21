@@ -1,5 +1,7 @@
 import { Controller } from "@nestjs/common";
 import typia from "typia";
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { NutritionService, IParsedMeal, IFoodItem } from "./NutritionService";
 import { GoogleIntegrationService } from "./GoogleIntegrationService";
@@ -9,6 +11,41 @@ import { MyGlobal } from "../../MyGlobal";
 export class NutritionController {
   private nutritionService = new NutritionService();
   private googleService = new GoogleIntegrationService();
+
+  /**
+   * Google Refresh Token을 가져옵니다.
+   * 파일 저장소에서 토큰을 우선으로 읽고, 메모리에도 로드합니다.
+   */
+  private getGoogleRefreshToken(): string | null {
+    try {
+      // 1. 파일에서 토큰 읽기
+      const configPath = path.join(process.cwd(), 'config.json');
+      if (fs.existsSync(configPath)) {
+        const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        if (configData.googleRefreshToken && configData.googleRefreshToken.trim() !== '') {
+          // 파일에서 읽은 토큰을 메모리에도 설정
+          process.env.GOOGLE_REFRESH_TOKEN = configData.googleRefreshToken.trim();
+          return configData.googleRefreshToken.trim();
+        }
+      }
+    } catch (error) {
+      console.warn('[NutritionController] Error reading config file:', error);
+    }
+
+    // 2. 메모리에서 토큰 확인 (fallback)
+    const memoryToken = process.env.GOOGLE_REFRESH_TOKEN;
+    if (memoryToken && memoryToken.trim() !== '') {
+      return memoryToken.trim();
+    }
+
+    // 3. 환경변수에서 토큰 확인 (final fallback)
+    const envToken = MyGlobal.env.GOOGLE_REFRESH_TOKEN;
+    if (envToken && envToken.trim() !== '') {
+      return envToken.trim();
+    }
+
+    return null;
+  }
 
   /**
    * 자연어 텍스트에서 음식 정보를 파싱하고 영양소를 계산합니다.
@@ -62,9 +99,12 @@ export class NutritionController {
     console.log('[NutritionController] Google Sheets 저장 시작');
     
     try {
-      const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+      const refreshToken = this.getGoogleRefreshToken();
       if (!refreshToken) {
-        throw new Error('Google Refresh Token이 설정되지 않았습니다.');
+        return {
+          success: false,
+          message: 'Google Refresh Token이 설정되지 않았습니다. OAuth 설정을 먼저 완료해주세요.'
+        };
       }
 
       const formatted = this.nutritionService.formatMealRecord(parsedMeal);
@@ -90,9 +130,12 @@ export class NutritionController {
     console.log('[NutritionController] Google Calendar 이벤트 생성 시작');
     
     try {
-      const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+      const refreshToken = this.getGoogleRefreshToken();
       if (!refreshToken) {
-        throw new Error('Google Refresh Token이 설정되지 않았습니다.');
+        return {
+          success: false,
+          message: 'Google Refresh Token이 설정되지 않았습니다. OAuth 설정을 먼저 완료해주세요.'
+        };
       }
 
       const formatted = this.nutritionService.formatMealRecord(parsedMeal);

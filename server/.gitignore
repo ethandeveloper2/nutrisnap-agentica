@@ -25,6 +25,9 @@ packages/api/lib/
 .env.test.local
 .env.production.local
 
+# Configuration files with sensitive data
+config.json
+
 # Lock files (optional, uncomment if needed)
 # package-lock.json
 # pnpm-lock.yaml
