@@ -1,0 +1,39 @@
+{
+  "name": "agentica-template-react",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@agentica/core": "^0.32.1",
+    "@agentica/rpc": "^0.32.1",
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/prismjs": "^1.26.5",
+    "@wrtnlabs/connector-arxiv-search": "^0.1.506",
+    "@wrtnlabs/connector-google-calendar": "^0.1.506",
+    "@wrtnlabs/connector-google-drive": "^0.1.506",
+    "@wrtnlabs/connector-google-search": "^0.1.506",
+    "highlight.js": "^11.11.1",
+    "prismjs": "^1.30.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "tgrid": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^5.0.1",
+    "globals": "^15.15.0",
+    "tailwindcss": "^4.1.12",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.3"
+  }
+}
